@@ -2,6 +2,28 @@ doctype html
 html(lang="en")
     head
         title=output
+        script(src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
+        link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css')
     body
-        h1 Test output
-        p #{json}
+    div.container
+        div.jumbotron(class='text-center')
+            h1 Keep track of your anime!
+        div.row
+            div.col-sm-8(class='col-sm-offset-2 text-center')
+                form(
+                    id='anime form'
+                    method='GET'
+                    action='/add'
+                )
+                    div.form-group
+                        input(
+                            class='form-control input-lg text-center'
+                            type='text'
+                            placeholder='Type the name of an anime here'
+                            name='animeName'
+                            width=500
+                        )
+                    button(
+                        type='submit'
+                        class='btn btn-primary btn-lg'
+                    ) Add
