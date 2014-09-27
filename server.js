@@ -6,7 +6,8 @@ var redis   = require('redis');
 var request = require('request');
 var app     = express();
 
-const kissanimeUrl = 'http://kissanime.com/Anime/';
+const host = 'http://kissanime.com';
+const folder = '/Anime/';
 
 // Create Redis client and log errors.
 var options = { retry_max_delay: 30 * 1000 };
@@ -31,29 +32,30 @@ app.get('/', function(req, res) {
 });
 
 app.get('/add', function add(req, res) {
-    var animeName = req.query.animeName;
-    animeName = animeName.replace(' ', '-');
-    var showUrl = kissanimeUrl + animeName;
+    // Kissanime stores anime names with hyphens replacing spaces.
+    var input = req.query.animeName;
+    var animeName = input.replace(' ', '-');
+    var showUrl = host + folder + animeName;
 
-    // Scrape the kissanime link.
+    // TODO: Check in Redis if we already scraped the page.
     console.log(showUrl);
     var options = { 
         url: showUrl,
         headers: {
             'User-Agent': 'curl/7.30.0',
-            // 'Accept': '*/*',
+            'Accept': '*/*',
             'Host': 'kissanime.com'
         }
     };
-    var found = true;
+    
+    // Use cheerio to scrape the page and get video links.
     request(options, function scrapePage(err, response, html) {
-        console.log(res.statusCode);
+        console.log('Status: ' + response.statusCode);
         if (err) {
             return console.error(err);
         }
 
         var $ = cheerio.load(html);
-        var links = [];
         var found = $('p:contains(\'Not found\')');
 
         // Anime not found.
@@ -62,15 +64,19 @@ app.get('/add', function add(req, res) {
             return console.error('anime not found' + found);
         }
 
+        // Create a hash entry for this new anime.
+        var hash = {
+            finished: false,
+            episodes: []
+        };
+
         // Get all 'a' tags, and get their links.
-        var tags = $('a[href*=\'Episode\']');
-        tags.each(function(index, element) {
-            links[index] = $(this).attr('href');
+        $('a[href*=\'Episode\']').each(function(index, element) {
+            hash.episodes[index] = host + $(this).attr('href');
         });
+
         // Do stuff.
-        for (var i = 0; i < links.length; i++) {
-            console.log(links[i]);
-        }
+        client.hmset(input, hash, redis.print);
         res.send('success!');
     });
 });
