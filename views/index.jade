@@ -3,6 +3,7 @@ html(lang="en")
     head
         title=output
         script(src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
+        script(src='js/core.js')
         link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css')
     body
     div.container
@@ -12,8 +13,6 @@ html(lang="en")
             div.col-sm-8(class='col-sm-offset-2 text-center')
                 form(
                     id='anime form'
-                    method='GET'
-                    action='/add'
                 )
                     div.form-group
                         input(
