@@ -45,17 +45,29 @@ function pingKissAnime(options, input) {
 app.get('/add', function addAnime(req, res) {
     // Kissanime stores anime names with hyphens replacing spaces.
     var input = req.query.animeName;
-    var animeName = input.replace(' ', '-').toLowerCase();
+    var spaceRegex = / /g;
+    var animeName = input.replace(spaceRegex, '-').toLowerCase();
     var showUrl = host + folder + animeName;
     console.log(showUrl);
 
     // Check in Redis if we already scraped the page. This saves us time since querying
     // from Kissanime is *slow*.
     client.hgetall(input, function getCachedAnime(err, anime) {
-        if (!err && anime !== null) {
-            // Already cached as JSON, return.
-            res.send(anime);
-            return console.log('sent from cache');
+        var json;
+        if (err) {
+            // Some sort of redis error.
+            json = { error: err };
+            res.send(json);
+            return console.log(err);
+        }
+        if (anime !== null) {
+            // When stored in the DB, arrays in JSON are turned into their string representation.
+            // So we call split(',') on episodes to decode it.
+            json = anime;
+            json.name = animeName;
+            json.episodes = anime.episodes.split(',');
+            res.send(json);
+            return console.log('Sent from cache');
         }
 
         var options = { 
@@ -68,7 +80,6 @@ app.get('/add', function addAnime(req, res) {
         };
         
         // Use cheerio to scrape the page and get video links.
-        var json = null; 
         var found = true;
         request(options, function scrapeAnimePage(err, response, html) {
             console.log('Status: ' + response.statusCode);
@@ -97,13 +108,14 @@ app.get('/add', function addAnime(req, res) {
                 } else {
                     // Keep in sorted order by minimum not watched.
                     json = {
+                        name: animeName,
                         finished: false,
                         current: 0,
                         episodes: allLinks.sort()
                     };
 
                     // Store in redis.
-                    // client.hmset(input, json, redis.print);
+                    client.hmset(input, json, redis.print);
                 }
             }
             res.send(json);
