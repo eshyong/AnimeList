@@ -5,6 +5,7 @@ html(lang="en")
         script(src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
         script(src='js/core.js')
         link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css')
+        link(rel='stylesheet', href='css/style.css')
     body
     div.container
         div.jumbotron(class='text-center')
@@ -13,6 +14,7 @@ html(lang="en")
             div.col-sm-8(class='col-sm-offset-2 text-center')
                 form(
                     id='anime form'
+                    autocomplete='off'
                 )
                     div.form-group
                         input(
@@ -26,3 +28,13 @@ html(lang="en")
                         type='submit'
                         class='btn btn-primary btn-lg'
                     ) Add
+        br
+        div.row
+            div.col-sm-8(class='col-sm-offset-2 text-center') 
+                button.btn(
+                    id='warning'
+                    type='button'
+                    class='btn-warning'
+                ) Error: Anime not found!
+            div.col-sm-8(class='col-sm-offset-2')
+                ul
