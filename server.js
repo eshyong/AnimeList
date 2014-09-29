@@ -38,10 +38,6 @@ app.get('/', function(req, res) {
     });
 });
 
-function pingKissAnime(options, input) {
-
-}
-
 app.get('/add', function addAnime(req, res) {
     // Kissanime stores anime names with hyphens replacing spaces.
     var input = req.query.animeName;
@@ -90,13 +86,14 @@ app.get('/add', function addAnime(req, res) {
                 var $ = cheerio.load(html);
 
                 // Get all 'a' tags, and get their links.
+                var nameRegex = new RegExp('\/' + animeName + '\/', 'i');
                 var episodeSelector = 'a[href*="Episode"]';
                 var tags = $(episodeSelector).get();
                 var allLinks = [];
                 for (var i = 0; i < tags.length; i++) {
                     var link = tags[i].attribs.href;
                     // We didn't find the right anime.
-                    if (link.toLowerCase().search(animeName) === -1) {
+                    if (link.toLowerCase().search(nameRegex) === -1) {
                         found = false;
                         break;
                     }
@@ -105,6 +102,7 @@ app.get('/add', function addAnime(req, res) {
 
                 if (!found) {
                     json = { error: 'Anime not found!' };
+                    console.log(json.error);
                 } else {
                     // Keep in sorted order by minimum not watched.
                     json = {
