@@ -6,21 +6,46 @@ var second = 1000;
 // Store list of anime in a map.
 var listedAnime = {};
 
-// Helper function to update 'a' element's info.
-function updateLink(linkNode) {
-    var name = linkNode.name;
+// Open a new tab with the anime episode url, then update url to point to the next one.
+function updateLink(event) {
+    // Get our <a> node.
+    var a = event.srcElement;
+    var name = a.name;
     var anime = listedAnime[name];
+    var url = a.href;
+
     if (!anime) {
-        return console.log('Some weird error, you\'d better check this out.');
+        return console.log('wat');
     }
     
-    /*if (anime.current !== anime.episodes.length - 1) {
+    window.open(url, '_blank');
+    if (anime.current !== anime.episodes.length - 1) {
+        // Increment counter if we haven't reached the last episode.
         anime.current++;
-    }*/
-    var href = linkNode.href;
-    console.log(href);
-    console.log(anime.current);
+
+        // Update the link to point to the next episode, and set new description.
+        var newLink = anime.episodes[anime.current];
+        var episodeNum = getEpisodeNumFromLink(newLink);
+        a.href = 'https://kissanime.com' + newLink;
+        a.text = 'Episode ' + episodeNum;
+    }
+    event.preventDefault();
     return false;
+}
+
+function getNameFromLink(input, link) {
+    // Get name using regex.
+    var nameRegex = new RegExp(input, 'i');
+    var hyphenRegex = /-/g;
+    var matches = link.match(nameRegex);
+    return matches[0].replace(hyphenRegex, ' '); 
+}
+
+function getEpisodeNumFromLink(link) {
+    // Get episode number using regex.
+    var numRegex = /episode-(\d)+/i;
+    var matches = link.match(numRegex);
+    return matches[1];
 }
 
 $(document).ready(function stuff() {
@@ -61,21 +86,23 @@ $(document).ready(function stuff() {
             var link = json.episodes[json.current];
 
             // Get name using regex.
-            var nameRegex = new RegExp(json.name, 'i');
-            var hyphenRegex = /-/g;
-            var matches = link.match(nameRegex);
-            var name = matches[0].replace(hyphenRegex, ' ');
+            var name = getNameFromLink(json.name, link);
 
             // Get episode number using regex.
-            var numRegex = /episode-(\d)+/i;
-            matches = link.match(numRegex);
-            var episodeNum = matches[1];
+            var episodeNum = getEpisodeNumFromLink(link);
 
             // Craft some html to append to a list.
-            var html = '<li><h3>' + name + ': <a href=https://kissanime.com' + link + 
-                       ' name="' + json.name + '" onclick=updateLink(this)>Episode ' + episodeNum + '</h2></li>';
-            var newItem = $(html);
-            $('ul').append(newItem.hide().fadeIn(second * 2));
+            var a = $('<a>');
+            a.attr({ 
+                'name': json.name,
+                'href': 'https://kissanime.com' + link, 
+                'onclick': 'updateLink(event)'
+            }).text('Episode ' + episodeNum);
+
+            var h2 = $('<h2>').text(name + ': ');
+            var li = $('<li>');
+            li.append(h2.append(a));
+            $('ul').append(li.hide().fadeIn(second * 2));
         });
         event.preventDefault();
     });
