@@ -36,14 +36,6 @@ function updateLink(event) {
     return false;
 }
 
-function getNameFromLink(input, link) {
-    // Get name using regex.
-    var nameRegex = new RegExp(input, 'i');
-    var hyphenRegex = /-/g;
-    var matches = link.match(nameRegex);
-    return matches[0].replace(hyphenRegex, ' '); 
-}
-
 function getEpisodeNumFromLink(link) {
     // Get episode number using regex.
     var numRegex = /episode-(\d)+/i;
@@ -74,7 +66,7 @@ $(document).ready(function stuff() {
             console.log(json);
             if (json.error) {
                 // Anime not found, fade warning in and out.
-                $('.btn-warning').fadeIn(2 * second).fadeOut(4 * second);
+                $('.btn-warning').fadeIn(second * 2).fadeOut(second * 4);
                 return console.log(json.error);
             }
 
@@ -87,13 +79,13 @@ $(document).ready(function stuff() {
 
             // Append most recent episode to our main pagelist.
             var link = json.episodes[json.current];
-            var name = getNameFromLink(json.name, link);
+            var name = json.name;
             var episodeNum = getEpisodeNumFromLink(link);
 
             // Craft some html to append to a list.
             var a = $('<a>');
             a.attr({ 
-                'name': json.name,
+                'name': name,
                 'href': 'https://kissanime.com' + link, 
                 'onclick': 'updateLink(event)'
             }).text('Episode ' + episodeNum);

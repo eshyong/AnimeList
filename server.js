@@ -38,6 +38,15 @@ app.get('/', function(req, res) {
     });
 });
 
+// Helper function for getting name.
+function getNameFromLink(input, link) {
+    // Get name using regex.
+    var nameRegex = new RegExp(input, 'i');
+    var matches = link.match(nameRegex);
+    var hyphenRegex = /-/g;
+    return matches[0].replace(hyphenRegex, ' '); 
+}
+
 app.get('/add', function addAnime(req, res) {
     // Kissanime stores anime names with hyphens replacing spaces.
     var input = req.query.animeName;
@@ -86,27 +95,25 @@ app.get('/add', function addAnime(req, res) {
                 var $ = cheerio.load(html);
 
                 // Get all 'a' tags, and get their links.
-                var nameRegex = new RegExp('\/' + animeName + '\/', 'i');
                 var episodeSelector = 'a[href*="Episode"]';
                 var tags = $(episodeSelector).get();
-                var allLinks = [];
-                for (var i = 0; i < tags.length; i++) {
-                    var link = tags[i].attribs.href;
-                    // We didn't find the right anime.
-                    if (link.toLowerCase().search(nameRegex) === -1) {
-                        found = false;
-                        break;
-                    }
-                    allLinks[i] = link;
-                }
+                var nameRegex = new RegExp('\/' + animeName + '\/', 'i');
 
-                if (!found) {
+                if (tags.length === 0 || tags[0].attribs.href.toLowerCase().search(nameRegex) === -1) {
+                    // We didn't find the right anime.
                     json = { error: 'Anime not found!' };
                     console.log(json.error);
                 } else {
+                    var name = getNameFromLink(animeName, tags[0].attribs.href);
+                    var allLinks = [];
+                    for (var i = 0; i < tags.length; i++) {
+                        var link = tags[i].attribs.href;
+                        allLinks.push(link);
+                    }
+
                     // Keep in sorted order by minimum not watched.
                     json = {
-                        name: animeName,
+                        name: name,
                         finished: false,
                         current: 0,
                         episodes: allLinks.sort()
