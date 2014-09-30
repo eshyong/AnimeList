@@ -10,15 +10,17 @@ var listedAnime = {};
 function updateLink(event) {
     // Get our <a> node.
     var a = event.srcElement;
-    var name = a.name;
-    var anime = listedAnime[name];
-    var url = a.href;
+    var anime = listedAnime[a.name];
 
     if (!anime) {
         return console.log('wat');
     }
     
+    // Open a new tab.
+    var url = a.href;
     window.open(url, '_blank');
+
+    // Update our episode link and number.
     if (anime.current !== anime.episodes.length - 1) {
         // Increment counter if we haven't reached the last episode.
         anime.current++;
@@ -29,6 +31,7 @@ function updateLink(event) {
         a.href = 'https://kissanime.com' + newLink;
         a.text = 'Episode ' + episodeNum;
     }
+    // Prevent the link from opening in our current tab.
     event.preventDefault();
     return false;
 }
@@ -84,11 +87,7 @@ $(document).ready(function stuff() {
 
             // Append most recent episode to our main pagelist.
             var link = json.episodes[json.current];
-
-            // Get name using regex.
             var name = getNameFromLink(json.name, link);
-
-            // Get episode number using regex.
             var episodeNum = getEpisodeNumFromLink(link);
 
             // Craft some html to append to a list.
@@ -102,6 +101,8 @@ $(document).ready(function stuff() {
             var h2 = $('<h2>').text(name + ': ');
             var li = $('<li>');
             li.append(h2.append(a));
+
+            // Fade effects!
             $('ul').append(li.hide().fadeIn(second * 2));
         });
         event.preventDefault();
