@@ -1,7 +1,9 @@
 'use strict';
 
-// Two seconds in milliseconds.
+// Some constants.
 var second = 1000;
+var host = 'https://kissanime.com';
+var episodeText = 'Episode ';
 
 // Store list of anime in a map.
 var listedAnime = {};
@@ -21,15 +23,17 @@ function updateLink(event) {
     window.open(url, '_blank');
 
     // Update our episode link and number.
-    if (anime.current !== anime.episodes.length - 1) {
+    if (anime.current === anime.episodes.length - 1) {
+        anime.finished = true;
+    } else {
         // Increment counter if we haven't reached the last episode.
         anime.current++;
 
         // Update the link to point to the next episode, and set new description.
         var newLink = anime.episodes[anime.current];
         var episodeNum = getEpisodeNumFromLink(newLink);
-        a.href = 'https://kissanime.com' + newLink;
-        a.text = 'Episode ' + episodeNum;
+        a.href = host + newLink;
+        a.text = episodeText + episodeNum;
     }
     // Prevent the link from opening in our current tab.
     event.preventDefault();
@@ -86,9 +90,9 @@ $(document).ready(function stuff() {
             var a = $('<a>');
             a.attr({ 
                 'name': name,
-                'href': 'https://kissanime.com' + link, 
+                'href': host + link, 
                 'onclick': 'updateLink(event)'
-            }).text('Episode ' + episodeNum);
+            }).text(episodeText + episodeNum);
 
             var h2 = $('<h2>').text(name + ': ');
             var li = $('<li>');

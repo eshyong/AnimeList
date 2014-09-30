@@ -69,7 +69,6 @@ app.get('/add', function addAnime(req, res) {
             // When stored in the DB, arrays in JSON are turned into their string representation.
             // So we call split(',') on episodes to decode it.
             json = anime;
-            json.name = animeName;
             json.episodes = anime.episodes.split(',');
             res.send(json);
             return console.log('Sent from cache');
@@ -104,7 +103,7 @@ app.get('/add', function addAnime(req, res) {
                     json = { error: 'Anime not found!' };
                     console.log(json.error);
                 } else {
-                    var name = getNameFromLink(animeName, tags[0].attribs.href);
+                    var properName = getNameFromLink(animeName, tags[0].attribs.href);
                     var allLinks = [];
                     for (var i = 0; i < tags.length; i++) {
                         var link = tags[i].attribs.href;
@@ -113,7 +112,7 @@ app.get('/add', function addAnime(req, res) {
 
                     // Keep in sorted order by minimum not watched.
                     json = {
-                        name: name,
+                        name: properName,
                         finished: false,
                         current: 0,
                         episodes: allLinks.sort()
