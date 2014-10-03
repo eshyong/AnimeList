@@ -6,13 +6,13 @@ var host = 'https://kissanime.com';
 var episodeText = 'Episode ';
 
 // Store list of anime in a map.
-var listedAnime = {};
+var listedAnime = localStorage || {};
 
 // Open a new tab with the anime episode url, then update url to point to the next one.
 function updateLink(event, incr) {
     // Get our <a> node.
     var a = event.srcElement;
-    var anime = listedAnime[a.name];
+    var anime = JSON.parse(listedAnime[a.name]);
 
     if (!anime) {
         return console.log('wat');
@@ -24,11 +24,12 @@ function updateLink(event, incr) {
 
     // Determine whether to increment, decrement, or leave the episode number.
     if (incr && anime.current !== anime.episodes.length - 1) {
-        anime.epnum++;
-        anime.current++;
+        // LocalStorage keeps values as strings.
+        anime.current = String(Number(anime.current) - 1);
+        anime.epnum = String(Number(anime.epnum) - 1);
     } else if (!incr && anime.current !== 0) {
-        anime.epnum--;
-        anime.current--;
+        anime.current = String(Number(anime.current) - 1);
+        anime.epnum = String(Number(anime.epnum) - 1);
     }
     // Update the link to point to the next episode, and set new description.
     var newLink = anime.episodes[anime.current];
@@ -41,8 +42,36 @@ function updateLink(event, incr) {
     return false;
 }
 
+function createListItem(json) {
+    // Append most recent episode to our main pagelist.
+    var name = json.name;
+    var link = json.episodes[json.current];
+    var episodeNum = json.epnum;
+
+    // Craft some html to append to a list.
+    var a = $('<a>');
+    a.attr({ 
+        'name': name,
+        'href': link, 
+        'onclick': 'updateLink(event)'
+    }).text(episodeText + episodeNum);
+
+    var h2 = $('<h2>').text(name + ': ');
+    var li = $('<li>');
+    li.append(h2.append(a));
+
+    // Fade effects!
+    $('ul').append(li.hide().fadeIn(second));
+}
+
+
 $(document).ready(function stuff() {
     console.log('Loaded');
+
+    for (var anime in listedAnime) {
+        var json = JSON.parse(listedAnime[anime]);
+        createListItem(json);
+    }
 
     // Form submitted, send an AJAX request.
     $('form').submit(function sendAnimeRequest(event) {
@@ -72,28 +101,12 @@ $(document).ready(function stuff() {
             if (json.name in listedAnime) {
                 return console.log('Anime already listed');
             }
-            // Otherwise we store it in our list.
-            listedAnime[json.name] = json;
+            // Otherwise we store it in our list as a stringified json object.
+            listedAnime[json.name] = JSON.stringify(json);
 
-            // Append most recent episode to our main pagelist.
-            var link = json.episodes[json.current];
-            var name = json.name;
-            var episodeNum = json.epnum;
+            // Append an item to the list.
+            createListItem(json);
 
-            // Craft some html to append to a list.
-            var a = $('<a>');
-            a.attr({ 
-                'name': name,
-                'href': link, 
-                'onclick': 'updateLink(event)'
-            }).text(episodeText + episodeNum);
-
-            var h2 = $('<h2>').text(name + ': ');
-            var li = $('<li>');
-            li.append(h2.append(a));
-
-            // Fade effects!
-            $('ul').append(li.hide().fadeIn(second));
         });
         event.preventDefault();
     });
