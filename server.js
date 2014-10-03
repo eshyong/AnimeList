@@ -1,20 +1,21 @@
 'use strict';
 
-var cheerio = require('cheerio');
-var express = require('express');
-var fs      = require('fs');
-var jade    = require('jade');
-var redis   = require('redis');
-var request = require('request');
-var app     = express();
+var cheerio      = require('cheerio');
+var express      = require('express');
+var fs           = require('fs');
+var redis        = require('redis');
+var request      = require('request');
+var app          = express();
 
-var host = 'http://kissanime.com';
+var host = 'https://kissanime.com';
 var folder = '/Anime/';
+
 
 // Create Redis client and log errors.
 var options = { retry_max_delay: 30 * 1000 };
 var client = redis.createClient(options);
 
+// Client functions.
 client.on('ready', function() {
     console.log('Redis is ready for commands');
 });
@@ -23,28 +24,62 @@ client.on('error', function(error) {
 });
 
 
-// Configurations.
-app.set('views', __dirname + '/views');
-app.set('view engine', 'jade');
-app.use(express.static('public'));
+// App configurations.
+app.use(express.static(__dirname + '/public'));
 
-app.get('/', function(req, res) {
-    app.render('index', function(err, html) {
+// Our index page.
+app.get('/', function index(req, res) {
+    res.sendFile('index.html', function badResponse(err) {
         if (err) {
             console.log(err);
-            res.send('error');
+            console.log('wat');
+            res.status(err.status).end();
+        } else {
+            console.log('Page loaded');
         }
-        res.send(html);
     });
 });
 
-// Helper function for getting name.
-function getNameFromLink(input, link) {
+// Helper functions for anime parsing and json creation.
+function getSeriesNameFromLink(input, link) {
     // Get name using regex.
     var nameRegex = new RegExp(input, 'i');
     var matches = link.match(nameRegex);
     var hyphenRegex = /-/g;
+    if (matches.length === 0) {
+        return 'unknown';
+    }
     return matches[0].replace(hyphenRegex, ' '); 
+}
+
+function getEpisodeNumFromLink(link) {
+    // Get episode number using regex.
+    var numRegex = /episode-(\d)+/i;
+    var matches = link.match(numRegex);
+    if (matches.length === 0) {
+        return '0';
+    }
+    return matches[1];
+}
+
+function createJsonFromLinks(animeName, link, tags) {
+    var seriesName = getSeriesNameFromLink(animeName, link);
+    var allLinks = [];
+    for (var i = 0; i < tags.length; i++) {
+        var link = host + folder + tags[i].attribs.href;
+        allLinks.push(link);
+    }
+    allLinks = allLinks.sort();
+    var episodeNum = getEpisodeNumFromLink(allLinks[0]);
+
+    // Keep in sorted order by minimum not watched.
+    return {
+        name: seriesName,
+        finished: false,
+        current: 0,
+        epnum: episodeNum,
+        episodes: allLinks
+    };
 }
 
 app.get('/add', function addAnime(req, res) {
@@ -84,7 +119,6 @@ app.get('/add', function addAnime(req, res) {
         };
         
         // Use cheerio to scrape the page and get video links.
-        var found = true;
         request(options, function scrapeAnimePage(err, response, html) {
             console.log('Status: ' + response.statusCode);
             if (err) {
@@ -103,20 +137,8 @@ app.get('/add', function addAnime(req, res) {
                     json = { error: 'Anime not found!' };
                     console.log(json.error);
                 } else {
-                    var properName = getNameFromLink(animeName, tags[0].attribs.href);
-                    var allLinks = [];
-                    for (var i = 0; i < tags.length; i++) {
-                        var link = tags[i].attribs.href;
-                        allLinks.push(link);
-                    }
-
-                    // Keep in sorted order by minimum not watched.
-                    json = {
-                        name: properName,
-                        finished: false,
-                        current: 0,
-                        episodes: allLinks.sort()
-                    };
+                    var link = tags[0].attribs.href;
+                    json = createJsonFromLinks(animeName, link, tags);
 
                     // Store in redis.
                     client.hmset(input, json, redis.print);

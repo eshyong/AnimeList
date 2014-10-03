@@ -9,7 +9,7 @@ var episodeText = 'Episode ';
 var listedAnime = {};
 
 // Open a new tab with the anime episode url, then update url to point to the next one.
-function updateLink(event) {
+function updateLink(event, incr) {
     // Get our <a> node.
     var a = event.srcElement;
     var anime = listedAnime[a.name];
@@ -22,29 +22,23 @@ function updateLink(event) {
     var url = a.href;
     window.open(url, '_blank');
 
-    // Update our episode link and number.
-    if (anime.current === anime.episodes.length - 1) {
-        anime.finished = true;
-    } else {
-        // Increment counter if we haven't reached the last episode.
+    // Determine whether to increment, decrement, or leave the episode number.
+    if (incr && anime.current !== anime.episodes.length - 1) {
+        anime.epnum++;
         anime.current++;
-
-        // Update the link to point to the next episode, and set new description.
-        var newLink = anime.episodes[anime.current];
-        var episodeNum = getEpisodeNumFromLink(newLink);
-        a.href = host + newLink;
-        a.text = episodeText + episodeNum;
+    } else if (!incr && anime.current !== 0) {
+        anime.epnum--;
+        anime.current--;
     }
+    // Update the link to point to the next episode, and set new description.
+    var newLink = anime.episodes[anime.current];
+    var episodeNum = anime.epnum;
+    a.href = host + newLink;
+    a.text = episodeText + episodeNum;
+
     // Prevent the link from opening in our current tab.
     event.preventDefault();
     return false;
-}
-
-function getEpisodeNumFromLink(link) {
-    // Get episode number using regex.
-    var numRegex = /episode-(\d)+/i;
-    var matches = link.match(numRegex);
-    return matches[1];
 }
 
 $(document).ready(function stuff() {
@@ -70,7 +64,7 @@ $(document).ready(function stuff() {
             console.log(json);
             if (json.error) {
                 // Anime not found, fade warning in and out.
-                $('.btn-warning').fadeIn(second * 2).fadeOut(second * 4);
+                $('.btn-warning').fadeIn(second * 2).fadeOut(second * 2);
                 return console.log(json.error);
             }
 
@@ -84,13 +78,13 @@ $(document).ready(function stuff() {
             // Append most recent episode to our main pagelist.
             var link = json.episodes[json.current];
             var name = json.name;
-            var episodeNum = getEpisodeNumFromLink(link);
+            var episodeNum = json.epnum;
 
             // Craft some html to append to a list.
             var a = $('<a>');
             a.attr({ 
                 'name': name,
-                'href': host + link, 
+                'href': link, 
                 'onclick': 'updateLink(event)'
             }).text(episodeText + episodeNum);
 
@@ -99,7 +93,7 @@ $(document).ready(function stuff() {
             li.append(h2.append(a));
 
             // Fade effects!
-            $('ul').append(li.hide().fadeIn(second * 2));
+            $('ul').append(li.hide().fadeIn(second));
         });
         event.preventDefault();
     });
