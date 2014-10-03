@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Kuma</title>
+        <script src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+        <script src='js/core.js'></script>
+        <link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
+        <link rel='stylesheet' type='text/css' href='css/style.css'>
+    </head>
+    <body>
+    <div class="container">
+        <div class="jumbotron text-center">
+            <h1>Keep track of your anime!</h1>
+        </div>
+        <div class="row">
+            <div class="col-sm-8 col-sm-offset-2 text-center">
+                <form id="anime form" autocomplete="off">
+                    <div class="form-group">
+                        <input class="form-control input-lg text-center" type="text" placeholder="Type the name of an anime here" name="animeName" width=500></input>
+                        <br>
+                        <button class="btn btn-primary btn-lg"type="submit">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-sm-8 col-sm-offset-2 text-center"> 
+                <button class="btn btn-warning" id="warning" type="button">
+                    Error: Anime not found!
+                </button>
+            </div>
+            <div class="col-sm-8 col-sm-offset-2">
+                <ul>
+                    {{#each animeList}}
+                        {{anime-link this}}
+                    {{/each}}
+                </ul>
+            </div>
+    </body>
+</html>
