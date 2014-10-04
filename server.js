@@ -32,7 +32,6 @@ app.get('/', function index(req, res) {
     res.sendFile('index.html', function badResponse(err) {
         if (err) {
             console.log(err);
-            console.log('wat');
             res.status(err.status).end();
         } else {
             console.log('Page loaded');

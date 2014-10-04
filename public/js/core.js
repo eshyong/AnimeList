@@ -61,7 +61,7 @@ function createListItem(json) {
     li.append(h2.append(a));
 
     // Fade effects!
-    $('ul').append(li.hide().fadeIn(second));
+    $('ul:contains("Anime List")').append(li.hide().fadeIn(second));
 }
 
 

@@ -2,12 +2,21 @@
 <html lang="en">
     <head>
     <title>Kuma</title>
-        <script src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
-        <script src='js/core.js'></script>
         <link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
         <link rel='stylesheet' type='text/css' href='css/style.css'>
     </head>
     <body>
+    <div class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <div class="navbar-inner">
+                <a class="brand" href="#">Kuma</a>
+                <ul class="nav">
+                    <li class="active"><button><a href="#">Home</a></button></li>
+                    <li><button><a href="#">Recommendations</a></button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <div class="jumbotron text-center">
             <h1>Keep track of your anime!</h1>
@@ -23,7 +32,6 @@
                 </form>
             </div>
         </div>
-        <br>
         <div class="row">
             <div class="col-sm-8 col-sm-offset-2 text-center"> 
                 <button class="btn btn-warning" id="warning" type="button">
@@ -32,7 +40,14 @@
             </div>
             <div class="col-sm-8 col-sm-offset-2">
                 <ul>
+                    <h1>Anime List</h1>
+                    <ul>
+                    </ul>
                 </ul>
             </div>
+        </div>
+    </div>
+    <script src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src='js/core.js'></script>
     </body>
 </html>
