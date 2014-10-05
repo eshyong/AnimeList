@@ -65,7 +65,8 @@ function createJsonFromLinks(animeName, link, tags) {
     var seriesName = getSeriesNameFromLink(animeName, link);
     var allLinks = [];
     for (var i = 0; i < tags.length; i++) {
-        var link = host + folder + tags[i].attribs.href;
+        var link = host + tags[i].attribs.href;
+        console.log(link);
         allLinks.push(link);
     }
     allLinks = allLinks.sort();
