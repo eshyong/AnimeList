@@ -4,7 +4,7 @@
 var second = 1000;
 var episodeText = 'Episode ';
 
-// Store list of anime in a map.
+// Store list of anime in a map. Use LocalStorage by default.
 var listedAnime = localStorage || {};
 
 // TODO: Figure out if client side and server side can share code.

@@ -2,7 +2,6 @@
 
 var cheerio      = require('cheerio');
 var express      = require('express');
-var fs           = require('fs');
 var redis        = require('redis');
 var request      = require('request');
 var app          = express();
@@ -66,7 +65,6 @@ function createJsonFromLinks(animeName, link, tags) {
     var allLinks = [];
     for (var i = 0; i < tags.length; i++) {
         var link = host + tags[i].attribs.href;
-        console.log(link);
         allLinks.push(link);
     }
     allLinks = allLinks.sort();
