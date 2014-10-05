@@ -2,44 +2,62 @@
 
 // Some constants.
 var second = 1000;
-var host = 'https://kissanime.com';
 var episodeText = 'Episode ';
 
 // Store list of anime in a map.
 var listedAnime = localStorage || {};
 
-// Open a new tab with the anime episode url, then update url to point to the next one.
-function updateLink(event, incr) {
+// TODO: Figure out if client side and server side can share code.
+function getEpisodeNumFromLink(link) {
+    // Get episode number using regex.
+    var numRegex = /episode-(\d+)/i;
+    var matches = link.match(numRegex);
+    if (matches.length === 0) {
+        return '0';
+    }
+    return Number(matches[1]);
+}
+
+function updateLink(event) {
     // Get our <a> node.
     var a = event.srcElement;
-    var anime = JSON.parse(listedAnime[a.name]);
-
-    if (!anime) {
-        return console.log('wat');
-    }
+    var name = a.name;
     
     // Open a new tab.
     var url = a.href;
     window.open(url, '_blank');
 
-    // Determine whether to increment, decrement, or leave the episode number.
-    if (incr && anime.current !== anime.episodes.length - 1) {
-        // LocalStorage keeps values as strings.
-        anime.current = String(Number(anime.current) - 1);
-        anime.epnum = String(Number(anime.epnum) - 1);
-    } else if (!incr && anime.current !== 0) {
-        anime.current = String(Number(anime.current) - 1);
-        anime.epnum = String(Number(anime.epnum) - 1);
-    }
-    // Update the link to point to the next episode, and set new description.
-    var newLink = anime.episodes[anime.current];
-    var episodeNum = anime.epnum;
-    a.href = host + newLink;
-    a.text = episodeText + episodeNum;
+    changeEpisodeNumber(name, true);
 
     // Prevent the link from opening in our current tab.
     event.preventDefault();
     return false;
+}
+
+function buttonPressed(event, incr) {
+    var name = event.srcElement.name;
+    changeEpisodeNumber(name, incr);
+}
+
+function changeEpisodeNumber(name, incr) {
+    var anime = JSON.parse(listedAnime[name]);
+
+    // Increment if the '+' button was pressed and decrement if '-' was pressed.
+    if (incr && anime.current !== anime.episodes.length-1) {
+        anime.current = Number(anime.current) + 1;
+    } else if (!incr && anime.current !== 0) {
+        anime.current = Number(anime.current) - 1;
+    }
+
+    // Update LocalStorage object.
+    anime.epnum = getEpisodeNumFromLink(anime.episodes[anime.current]);
+    listedAnime[name] = JSON.stringify(anime);
+
+    // Get the link element and change its contents.
+    var selector = 'a[name="' + name + '"]';
+    var newLink = anime.episodes[anime.current];
+    var episodeNum = anime.epnum;
+    $(selector).attr('href', newLink).text(episodeText + episodeNum);
 }
 
 function createListItem(json) {
@@ -56,9 +74,22 @@ function createListItem(json) {
         'onclick': 'updateLink(event)'
     }).text(episodeText + episodeNum);
 
+    // Create an increment and decrement button.
+    var incr = $('<button>').text('+').attr({
+        name: json.name,
+        onclick: 'buttonPressed(event, true)',
+        style: 'margin-left: 10px; margin-left: 10px;'
+    });
+    // \u2212 is unicode for the minus sign.
+    var decr = $('<button>').text('\u2212').attr({
+        name: json.name,
+        onclick: 'buttonPressed(event, false)',
+        style: 'margin-left: 10px; margin-left: 10px;'
+    });
+
     var h2 = $('<h2>').text(name + ': ');
     var li = $('<li>');
-    li.append(h2.append(a));
+    li.append(h2.append(a).append(incr).append(decr));
 
     // Fade effects!
     $('ul:contains("Anime List")').append(li.hide().fadeIn(second));
