@@ -6,9 +6,11 @@ var redis        = require('redis');
 var request      = require('request');
 var app          = express();
 
+// Use $PORT from the environment.
+var port = process.env.PORT || 80;
+
 var host = 'https://kissanime.com';
 var folder = '/Anime/';
-
 
 // Create Redis client and log errors.
 var options = { retry_max_delay: 30 * 1000 };
@@ -147,6 +149,6 @@ app.get('/add', function addAnime(req, res) {
     });
 });
 
-app.listen('8080');
-console.log('Listening on port 8080');
+app.listen(port);
+console.log('Listening on port ' + port);
 exports = module.exports = app;
