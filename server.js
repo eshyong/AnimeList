@@ -14,7 +14,14 @@ var folder = '/Anime/';
 
 // Create Redis client and log errors.
 var options = { retry_max_delay: 30 * 1000 };
-var client = redis.createClient(options);
+var client;
+if (process.env.REDISTOGO_URL) {
+    var rtg = require('url').parse(process.env.REDISTOGO_URL);
+    client = redis.createClient(rtg.port, rtg.hostname);
+    client.auth(rtg.auth.split(':')[1]);
+} else {
+    client = redis.createClient(options);
+}
 
 // Client functions.
 client.on('ready', function() {
