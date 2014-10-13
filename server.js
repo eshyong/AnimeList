@@ -7,7 +7,7 @@ var request      = require('request');
 var app          = express();
 
 // Use $PORT from the environment.
-var port = process.env.PORT || 80;
+var port = process.env.PORT || 8080;
 
 var host = 'https://kissanime.com';
 var folder = '/Anime/';
@@ -16,10 +16,12 @@ var folder = '/Anime/';
 var options = { retry_max_delay: 30 * 1000 };
 var client;
 if (process.env.REDISTOGO_URL) {
+    // Redis to go deployment on Heroku.
     var rtg = require('url').parse(process.env.REDISTOGO_URL);
     client = redis.createClient(rtg.port, rtg.hostname);
     client.auth(rtg.auth.split(':')[1]);
 } else {
+    // Local testing.
     client = redis.createClient(options);
 }
 
