@@ -2,21 +2,21 @@
 <html lang="en">
     <head>
     <title>Kuma</title>
-        <link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
-        <link rel='stylesheet' type='text/css' href='css/style.css'>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
     </head>
     <body>
-    <div class="navbar navbar-default" role="navigation">
-        <div class="container">
-            <div class="navbar-inner">
-                <a class="brand" href="#">Kuma</a>
-                <ul class="nav">
-                    <li class="active"><button><a href="#">Home</a></button></li>
-                    <li><button><a href="#">Recommendations</a></button></li>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a class="brand" href="#">Kuma</a></li>
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="recs.html">Recommendations</a></li>
                 </ul>
             </div>
         </div>
-    </div>
+    </nav>
     <div class="container">
         <div class="jumbotron text-center">
             <h1>Keep track of your anime!</h1>
@@ -47,7 +47,8 @@
             </div>
         </div>
     </div>
-    <script src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
-    <script src='js/listPage.js'></script>
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/listPage.js"></script>
     </body>
 </html>
