@@ -96,9 +96,10 @@ function createListItem(json) {
 }
 
 
-$(document).ready(function stuff() {
-    console.log('Loaded');
+$(document).ready(function listMain() {
+    console.log('List page loaded');
 
+    // Populate list with anime we've already added.
     for (var anime in listedAnime) {
         var json = JSON.parse(listedAnime[anime]);
         createListItem(json);
@@ -107,14 +108,11 @@ $(document).ready(function stuff() {
     // Form submitted, send an AJAX request.
     $('form').submit(function sendAnimeRequest(event) {
         console.log('Submitting');
-        var form = {
-            animeName: $('input[name=animeName]').val()
-        };
-
+        var input = {animeName: $('input[name=animeName]').val()};
         var request = {
             type: 'GET',
             url: 'add',
-            data: form,
+            data: input,
             dataType: 'json',
             encode: true
         };

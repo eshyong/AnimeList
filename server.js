@@ -100,12 +100,12 @@ app.get('/add', function addAnime(req, res) {
     console.log(showUrl);
 
     // Check in Redis if we already scraped the page. This saves us time since querying
-    // from Kissanime is *slow*.
+    // from Kissanime is much slower.
     client.hgetall(input, function getCachedAnime(err, anime) {
         var json;
         if (err) {
             // Some sort of redis error.
-            json = { error: err };
+            json = {error: err};
             res.send(json);
             return console.log(err);
         }
@@ -131,7 +131,7 @@ app.get('/add', function addAnime(req, res) {
         request(options, function scrapeAnimePage(err, response, html) {
             console.log('Status: ' + response.statusCode);
             if (err) {
-                json = { error: 'HTTP response code from kissanime: ' + response.statusCode };
+                json = {error: 'HTTP response code from kissanime: ' + response.statusCode};
             } else {
                 // Load html into cheerio.
                 var $ = cheerio.load(html);
@@ -143,7 +143,7 @@ app.get('/add', function addAnime(req, res) {
 
                 if (tags.length === 0 || tags[0].attribs.href.toLowerCase().search(nameRegex) === -1) {
                     // We didn't find the right anime.
-                    json = { error: 'Anime not found!' };
+                    json = {error: 'Anime not found!'};
                     console.log(json.error);
                 } else {
                     var link = tags[0].attribs.href;
@@ -156,6 +156,12 @@ app.get('/add', function addAnime(req, res) {
             res.send(json);
         });
     });
+});
+
+app.get('/rec', function findRecommendedAnime(req, res) {
+    var input = req.query.animeName;
+    console.log('Finding similar animes to ' + input);
+    res.send({error: 'not implemented'});
 });
 
 app.listen(port);
